@@ -8,7 +8,8 @@ import { parseUserId } from '../auth/utils';
 import { CreateTodoRequest } from '../requests/CreateTodoRequest';
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
 import { TodoItem } from '../models/TodoItem';
-
+import { createLogger } from '../utils/logger'
+const logger = createLogger('generateUploadUrl')
 
 const todosAccess = new TodosAccess();
 const todosStorage = new TodosStorage();
@@ -80,15 +81,12 @@ export async function updateTodo(event: APIGatewayProxyEvent,updateTodoRequest: 
 }
 
 export async function generateUploadUrl(event: APIGatewayProxyEvent) {
+    logger.info("generateurl event body", {event: event.body});
     const bucket = todosStorage.getBucketName()
-    const urlExpiration = 300
     const todoId = event.pathParameters.todoId
+    logger.info("Processing event", {id: todoId});
 
-    const createSignedUrlRequest = {
-        Bucket: bucket,
-        Key: todoId,
-        Expires: urlExpiration
-    }
+    const attachmentId = uuid.v4()
 
-    return todosStorage.getPresignedUploadURL(createSignedUrlRequest);
+    return todosStorage.getPresignedUploadURL(bucket,attachmentId);
 }
