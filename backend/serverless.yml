@@ -15,7 +15,7 @@ provider:
   region: ${opt:region, 'us-east-1'}
 
   environment:
-    TODOS_TABLE: todo-${self:provider.stage}
+    TODOS_TABLE: todo2-${self:provider.stage}
     INDEX_NAME: todoId
     ATTACHMENTS_S3_BUCKET: severless-filebucket-${self:provider.stage}
     AUTH_0_SECRET: 6jNn9KAcIC6t5xCiDVQD9GK8BVV3avX3NsiH69x1Sw5_vPzUY5zOsl6Fvvn02vrw
@@ -171,20 +171,24 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: todoId
-            AttributeType: S
           - AttributeName: userId
             AttributeType: S
-        KeySchema:
+          - AttributeName: createdAt
+            AttributeType: S
           - AttributeName: todoId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
             KeyType: HASH
-        GlobalSecondaryIndexes:
+          - AttributeName: todoId
+            KeyType: RANGE
+        LocalSecondaryIndexes:
           - IndexName: ${self:provider.environment.USERID_INDEX}
             KeySchema:
-            - AttributeName: userId
-              KeyType: HASH
-            - AttributeName: todoId
-              KeyType: RANGE
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
             Projection:
               ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
