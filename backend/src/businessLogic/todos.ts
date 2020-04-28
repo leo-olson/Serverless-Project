@@ -80,13 +80,31 @@ export async function updateTodo(event: APIGatewayProxyEvent,updateTodoRequest: 
     return true;
 }
 
-export async function generateUploadUrl(event: APIGatewayProxyEvent) {
+export async function generateUploadUrl(event: APIGatewayProxyEvent, attachmentId: string) {
     logger.info("generateurl event body", {event: event.body});
     const bucket = todosStorage.getBucketName()
     const todoId = event.pathParameters.todoId
     logger.info("Processing event", {id: todoId});
 
-    const attachmentId = uuid.v4()
+    
 
     return todosStorage.getPresignedUploadURL(bucket,attachmentId);
+}
+
+export async function updateTodoAttachmentUrl(event: APIGatewayProxyEvent, attachmentId:string){
+
+    const todoId = event.pathParameters.todoId
+    const bucket = todosStorage.getBucketName()
+
+    
+    const authorization = event.headers.Authorization
+    const split = authorization.split(' ')
+    const jwtToken = split[1]
+    const userId = parseUserId(jwtToken)
+
+    logger.info(`Updating todoId ${todoId} with attachmentUrl ${attachmentId}`)
+
+    await todosAccess.updateTodoAttachmentUrl(todoId,userId, bucket, attachmentId)
+
+
 }

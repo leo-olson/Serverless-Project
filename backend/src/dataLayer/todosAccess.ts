@@ -53,7 +53,6 @@ export default class TodosAccess {
       return result.Item;
   }
 
-
   async updateTodo(todoId, userId, updatedTodo) {
       await this.docClient.update({
           TableName: this.todosTable,
@@ -74,5 +73,22 @@ export default class TodosAccess {
           }
       }).promise();
   }
+
+  async updateTodoAttachmentUrl(todoId: string, userId: string, bucketName, attachmentUrl: string){ 
+    
+    await this.docClient.update({
+        TableName: this.todosTable,
+        Key: {
+            "todoId": todoId,
+            userId
+        },
+        UpdateExpression: "set attachmentUrl = :attachmentUrl",
+        ExpressionAttributeValues: {
+            ":attachmentUrl": `https://${bucketName}.s3.amazonaws.com/${attachmentUrl}`
+        }
+    }).promise();
+    }
+
 }
+
 
